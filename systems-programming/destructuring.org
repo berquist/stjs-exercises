@@ -1,0 +1,77 @@
+#+begin_src js :results output
+const first = [10, 20, 30];
+console.log(`first: ${first}`);
+#+end_src
+
+#+RESULTS:
+: first: 10,20,30
+
+#+begin_src js :results output
+const [first, second] = [10, 20, 30];
+console.log(`first: ${first}`);
+console.log(`second: ${second}`);
+#+end_src
+
+#+RESULTS:
+: first: 10
+: second: 20
+
+#+begin_src js :results output
+const [first, second, third] = [10, 20, 30];
+console.log(`first: ${first}`);
+console.log(`second: ${second}`);
+console.log(`third: ${third}`);
+#+end_src
+
+#+RESULTS:
+: first: 10
+: second: 20
+: third: 30
+
+#+begin_src js :results output
+const [first, second, third, fourth] = [10, 20, 30];
+console.log(`first: ${first}`);
+console.log(`second: ${second}`);
+console.log(`third: ${third}`);
+console.log(`fourth: ${fourth}`);
+#+end_src
+
+#+RESULTS:
+: first: 10
+: second: 20
+: third: 30
+: fourth: undefined
+
+#+begin_src js :results output
+const {left, right} = {left: 10, right: 30};
+console.log(`left: ${left}`);
+console.log(`right: ${right}`);
+#+end_src
+
+#+RESULTS:
+: left: 10
+: right: 30
+
+#+begin_src js :results output
+const {left, middle, right} = {left: 10, middle: 20, right: 30};
+console.log(`left: ${left}`);
+console.log(`middle: ${middle}`);
+console.log(`right: ${right}`);
+#+end_src
+
+#+RESULTS:
+: left: 10
+: middle: 20
+: right: 30
+
+#+begin_src js :results output
+const {left, right, middle} = {left: 10, middle: 20, right: 30};
+console.log(`left: ${left}`);
+console.log(`middle: ${middle}`);
+console.log(`right: ${right}`);
+#+end_src
+
+#+RESULTS:
+: left: 10
+: middle: 20
+: right: 30
