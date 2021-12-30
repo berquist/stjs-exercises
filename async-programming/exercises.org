@@ -1,0 +1,40 @@
+* Tracing promise execution
+
+#+begin_example
+[eric@osmium]$ node
+Welcome to Node.js v17.3.0.
+Type ".help" for more information.
+> Promise.resolve('hello')
+Promise {
+  'hello',
+  [Symbol(async_id_symbol)]: 108,
+  [Symbol(trigger_async_id_symbol)]: 5,
+  [Symbol(destroyed)]: { destroyed: false }
+}
+> Promise.resolve('hello').then(result => console.log(result))
+Promise {
+  <pending>,
+  [Symbol(async_id_symbol)]: 388,
+  [Symbol(trigger_async_id_symbol)]: 387,
+  [Symbol(destroyed)]: { destroyed: false }
+}
+> hello
+
+> const p = new Promise((resolve, reject) => resolve('hello')).then(result => console.log(result));
+undefined
+> hello
+#+end_example
+
+** First example
+
+From the Node REPL, it prints the string representation of a promise that has not been resolved.  From a script, it doesn't print anything.  This is because the contents of the promise need to be resolved (executed, consumed) for anything to happen (for the string to appear).  It also seems like the Node REPL is pretty standard in printing the string representation of the thing that was just entered.
+
+** Second example
+
+From the Node REPL, it prints the string representation of a promise that is in the process of being resolved.  From a script, it prints the string "hello".  This is because the contents of the promise are being consumed by the =then= clause.
+
+** Third example
+
+From the Node REPL, it prints "undefined", then returns the string "hello". From a script, it prints the string "hello".  For the script case, it's the same as the second example: the contents of the promise are being consumed.
+
+In the REPL, "undefined" is printed because that's the return value of the =const p = new ...= expression.  Calling =p= shows that it is =Promise { undefined, ... }=, showing that the contents of the promise (="hello"=) were consumed by the =console.log= call and /not/ assigned to =p=.
