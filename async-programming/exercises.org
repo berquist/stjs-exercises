@@ -1,3 +1,38 @@
+* Immediate versus next tick
+
+#+begin_quote
+What is the difference between =setImmediate= and =process.nextTick=?  When would you use each one?
+#+end_quote
+
+- https://nodejs.org/dist/latest-v17.x/docs/api/globals.html#setimmediatecallback-args
+  - https://nodejs.org/dist/latest-v17.x/docs/api/timers.html#setimmediatecallback-args
+- https://nodejs.org/dist/latest-v17.x/docs/api/process.html#processnexttickcallback-args
+
+#+begin_quote
+- =setImmediate= schedules the "immediate" execution of the passed callback
+  after I/O events' callbacks.  When multiple calls to =setImmediate= are
+  made, the callback functions are queued in the order in which they are
+  created.  The entire callback queue is processed every event loop iteration.
+  If an immediate timer is queued from inside an executing callback, that
+  timer will not be triggered until the next event loop iteration.
+- =nextTick= adds the passed callback to the "next tick queue", which is fully
+  drained after the current operation on the JS stack runs to completion and
+  before the event loop is allowed to continue.
+#+end_quote
+
+# (I am not sure of the following answer.)
+
+# When adding new callbacks during the existing execution of a callback,
+# =setImmediate= will wait until the next iteration of the event loop to execute
+# those callbacks, while =nextTick= will pause the event loop and execute them
+# during the current iteration.
+
+When adding new callbacks during the existing execution of a callback,
+=setImmediate= will wait until any queued I/O operations are performed.
+=nextTick= will perform these callbacks immediately, not waiting for I/O.
+
+https://stackoverflow.com/a/15349865
+
 * Tracing promise execution
 
 #+begin_example
@@ -27,14 +62,78 @@ undefined
 
 ** First example
 
-From the Node REPL, it prints the string representation of a promise that has not been resolved.  From a script, it doesn't print anything.  This is because the contents of the promise need to be resolved (executed, consumed) for anything to happen (for the string to appear).  It also seems like the Node REPL is pretty standard in printing the string representation of the thing that was just entered.
+From the Node REPL, it prints the string representation of a promise that has
+not been resolved.  From a script, it doesn't print anything.  This is because
+the contents of the promise need to be resolved (executed, consumed) for
+anything to happen (for the string to appear).  It also seems like the Node
+REPL is pretty standard in printing the string representation of the thing
+that was just entered.
 
 ** Second example
 
-From the Node REPL, it prints the string representation of a promise that is in the process of being resolved.  From a script, it prints the string "hello".  This is because the contents of the promise are being consumed by the =then= clause.
+From the Node REPL, it prints the string representation of a promise that is
+in the process of being resolved.  From a script, it prints the string
+"hello".  This is because the contents of the promise are being consumed by
+the =then= clause.
 
 ** Third example
 
-From the Node REPL, it prints "undefined", then returns the string "hello". From a script, it prints the string "hello".  For the script case, it's the same as the second example: the contents of the promise are being consumed.
+From the Node REPL, it prints "undefined", then returns the string
+"hello". From a script, it prints the string "hello".  For the script case,
+it's the same as the second example: the contents of the promise are being
+consumed.
 
-In the REPL, "undefined" is printed because that's the return value of the =const p = new ...= expression.  Calling =p= shows that it is =Promise { undefined, ... }=, showing that the contents of the promise (="hello"=) were consumed by the =console.log= call and /not/ assigned to =p=.
+In the REPL, "undefined" is printed because that's the return value of the
+=const p = new ...= expression.  Calling =p= shows that it is =Promise {
+undefined, ... }=, showing that the contents of the promise (="hello"=) were
+consumed by the =console.log= call and /not/ assigned to =p=.
+
+* Multiple catches
+
+#+begin_example
+$ node
+Welcome to Node.js v17.3.0.
+Type ".help" for more information.
+> const oops = new Promise((resolve, reject) => reject(new Error('failure')));
+undefined
+> Uncaught Error: failure
+    at REPL1:1:54
+    at new Promise (<anonymous>)
+> oops.catch(err => console.log(err.message))
+Promise {
+  <pending>,
+  [Symbol(async_id_symbol)]: 553,
+  [Symbol(trigger_async_id_symbol)]: 328,
+  [Symbol(destroyed)]: { destroyed: false }
+}
+> failure
+(node:1747849) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 1)
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> oops.catch(err => console.log(err.message))
+Promise {
+  <pending>,
+  [Symbol(async_id_symbol)]: 570,
+  [Symbol(trigger_async_id_symbol)]: 328,
+  [Symbol(destroyed)]: { destroyed: false }
+}
+> failure
+
+>
+#+end_example
+
+From the REPL, the contents of the promise seem to be executed immediately.
+(I don't know more than that.)
+
+* Then after catch
+
+A promise is created and immediately executed that throws an error.  The
+promised error is caught by the catch clause and printed to standard out.
+Because the promise is consumed by the catch, the then clause has nothing to
+work with and returns =undefined=.
+
+If you were to switch the order of appearance of the two clauses, =then= would
+be skipped, =catch= would catch the error as above, and nothing would be
+returned at all.
+
+https://stackoverflow.com/a/42028776/
