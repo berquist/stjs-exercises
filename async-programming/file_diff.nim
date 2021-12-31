@@ -29,7 +29,7 @@ proc main(leftFilename: string, rightFilename: string) =
       echo fmt"* {line}"
 
 when isMainModule:
-    let
-      leftFilename = paramStr(1)
-      rightFilename = paramStr(2)
-    main(leftFilename, rightFilename)
+  let
+    leftFilename = paramStr(1)
+    rightFilename = paramStr(2)
+  main(leftFilename, rightFilename)
