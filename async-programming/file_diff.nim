@@ -6,11 +6,11 @@ import std/strformat
 import std/strutils
 
 proc readFileLines(filename: string): HashSet[string] =
-    let
-        contents = readFile(filename)
-        lns = contents.split("\n")
-    result = toHashSet(lns)
-    result.excl ""
+  let
+    contents = readFile(filename)
+    lns = contents.split("\n")
+  result = toHashSet(lns)
+  result.excl ""
 
 proc main(leftFilename: string, rightFilename: string) =
   let
