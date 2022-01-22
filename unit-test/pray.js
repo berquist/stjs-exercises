@@ -1,11 +1,11 @@
 import minimist from 'minimist'
-import glob from 'glob'
+import glob from 'glob-promise'
 import hope from './hope.js'
 
 const main = async (args) => {
     const options = parse(args);
     if (options.filenames.length === 0) {
-        options.filenames = glob.sync(`${options.root}/**/test-*.js`);
+        options.filenames = await glob(`${options.root}/**/test-*.js`);
     }
     for (const f of options.filenames) {
         await import(f);
