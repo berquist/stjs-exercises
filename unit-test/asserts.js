@@ -1,10 +1,12 @@
 import assert from 'assert'
 
-const assertApproxEqual = (left, right, message, tol) => {
+// Checks the relative error between the given expected and calculated values.
+const assertApproxEqual = (expected, calculated, message, tol) => {
     if (tol === undefined) {
         tol = 0.1;
     }
-    if (Math.abs(left - right) > tol) {
+    const relError = Math.abs(expected - calculated) / Math.abs(expected);
+    if (relError > tol) {
         throw new assert.AssertionError({message});
     }
 };
